@@ -2,10 +2,45 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>ChatGPT Destekli Haxball</title>
+  <title>ChatGPT Destekli Haxball Odası</title>
+  <!-- haxballheadless.js dosyasını public klasöründen yükle -->
+  <script src="haxballheadless.js"></script>
 </head>
 <body>
-  <h1>✅ Sunucu çalışıyor</h1>
-  <p>Bot arka planda Haxball Headless sunucusu olarak çalışıyor.</p>
+  <h1>ChatGPT Destekli Haxball Odası</h1>
+  <script>
+    window.onload = () => {
+      const room = HBInit({
+        roomName: "ChatGPT Destekli Haxball Odası",
+        maxPlayers: 8,
+        public: true,
+        noPlayer: true,
+      });
+
+      room.setDefaultStadium("Classic");
+      room.setScoreLimit(3);
+      room.setTimeLimit(5);
+
+      room.onPlayerJoin = (player) => {
+        room.sendChat(`Hoş geldin, ${player.name}! Sohbet etmek için bir şey yazabilirsin.`);
+      };
+
+      room.onPlayerChat = (player, message) => {
+        fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            room.sendChat(`@${player.name} ${data.reply}`);
+          })
+          .catch(() => {
+            room.sendChat("🤖 Yapay zeka cevap veremedi.");
+          });
+        return false;
+      };
+    };
+  </script>
 </body>
 </html>
